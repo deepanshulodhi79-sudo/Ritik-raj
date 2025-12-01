@@ -1,4 +1,4 @@
-// server.js (env-based credentials)
+// server.js
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -9,9 +9,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// 🔑 Credentials from .env (recommended)
-const HARD_USERNAME = process.env.HARD_USERNAME || "Ritik Rajput";
-const HARD_PASSWORD = process.env.HARD_PASSWORD || "Ritik882@#";
+// 🔑 Hardcoded login (Updated)
+const HARD_USERNAME = "Ritik Rajput";
+const HARD_PASSWORD = "Ritik Rajput123#@";
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'bulk-mailer-secret',
+  secret: 'bulk-mailer-secret',
   resave: false,
   saveUninitialized: true
 }));
