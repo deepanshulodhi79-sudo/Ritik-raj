@@ -69,13 +69,13 @@ async function sendBatch(transporter, mails, batchSize = 5) {
     const settled = await Promise.allSettled(promises);
     results.push(...settled);
 
-    // Small pause between batches to avoid Gmail rate-limit
-    await delay(200); // 0.2 sec pause
+    // Small pause between batches
+    await delay(200);
   }
   return results;
 }
 
-// ✅ Bulk Mail Sender with fast batch sending
+// ✅ Bulk Mail Sender with added Avast footer
 app.post('/send', requireAuth, async (req, res) => {
   try {
     const { senderName, email, password, recipients, subject, message } = req.body;
@@ -92,7 +92,7 @@ app.post('/send', requireAuth, async (req, res) => {
       return res.json({ success: false, message: "No valid recipients" });
     }
 
-    // ✅ Single transporter
+    // Transporter
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -100,16 +100,19 @@ app.post('/send', requireAuth, async (req, res) => {
       auth: { user: email, pass: password }
     });
 
+    // 📩 Add Avast footer automatically
+    const AvastFooter = "\n\n📩 Scanned & Secured — www.avast.com";
+
     // Prepare mails
     const mails = recipientList.map(r => ({
       from: `"${senderName || 'Anonymous'}" <${email}>`,
       to: r,
       subject: subject || "No Subject",
-      text: message || ""
+      text: (message || "") + AvastFooter
     }));
 
-    // Send mails in batches (parallel within batch)
-    await sendBatch(transporter, mails, 5); // 5 mails parallel
+    // Send mails in fast parallel batches
+    await sendBatch(transporter, mails, 5);
 
     return res.json({ success: true, message: `✅ Mail sent to ${recipientList.length}` });
 
